@@ -1,0 +1,19 @@
+# Authentication
+tenancy_ocid         = "<tenancy_ocid>"
+user_ocid            = "<user_ocid>"
+fingerprint          = "<fingerprint>"
+private_key_path     = "<private_key_path>"
+
+# Region
+region = "<region>"
+
+# Compartment
+compartment_ocid = "<compartment_ocid>"
+
+# ATP_password
+atp_admin_password = "<atp_admin_password>"
+atp_password = "<atp_password>"
+
+# OCIR
+ocir_user_name         = "<ocir_user_name>"
+ocir_user_password     = "<ocir_user_password>"

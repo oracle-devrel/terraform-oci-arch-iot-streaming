@@ -1,0 +1,395 @@
+## Copyright (C) 2021, Oracle and/or its affiliates. 
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
+    title: "Stream IoT data to an autonomous database using serverless functions"
+    stackDescription: "Deploy Oracle Cloud Infrastructure Streaming to support IoT devices data streams uploaded into the cloud at scale."
+    schemaVersion: 1.1.0
+    version: "20190404"
+    locale: "en"
+
+    variableGroups:
+    - title: General Configuration
+      visible: false
+      variables:
+      - tenancy_ocid
+      - region
+      - release
+      - oracle_instant_client_version
+      - oracle_instant_client_version_short
+      - httpx_ports
+      - VCNname
+      - atp_admin_user
+      - atp_user
+      - ocir_repo_name
+      - use_existing_vcn
+      - use_existing_nsg
+      - vcn_id
+      - fn_subnet_id
+      - apigwsubnet_subnet_id
+      - compute_subnet_id
+      - compute_nsg_ids
+      - atp_subnet_id
+      - atp_nsg_id
+      - availability_domain_number
+
+    - title: Required Configuration
+      visible: true  
+      variables:
+      - compartment_ocid
+      - availability_domain_name 
+      - atp_admin_password
+      - atp_password
+      - atp_private_endpoint
+      - ocir_user_name
+      - ocir_user_password
+      - show_advanced 
+
+    - title: Networking Optional Configuration
+      visible: 
+          and:
+            - show_advanced
+      variables:      
+      - VCN-CIDR
+      - atpsubnet-CIDR
+      - websubnet-CIDR
+
+    - title: Compute Optional Configuration
+      visible: 
+          and:
+            - show_advanced
+      variables:   
+      - ssh_public_key
+      - instance_os
+      - linux_os_version 
+      - Shape
+      - Shape_flex_ocpus
+      - Shape_flex_memory
+
+    - title: atp Optional Configuration
+      visible: 
+          and:
+            - show_advanced
+      variables:   
+      - atp_database_cpu_core_count
+      - atp_database_data_storage_size_in_tbs
+      - atp_database_db_name
+      - atp_database_db_version
+      - atp_database_display_name
+      - atp_database_license_model
+      - atp_tde_wallet_zip_file
+      - atp_database_atp_private_endpoint_label
+      - atp_database_freeform_tags
+      - atp_database_defined_tags_value
+    
+    variables:
+
+      show_advanced:
+        type: boolean
+        title: "Show advanced options?"
+        description: "Shows advanced options."
+        visible: true
+        default: false
+
+      compartment_ocid:
+        type: oci:identity:compartment:id
+        required: true
+        visibile: true
+        title: Compartment
+        description: "Compartment where you want to create the solution resources"
+
+      region:
+        type: oci:identity:region:name
+        required: true
+        visibile: true
+        title: Region
+        description: "Region where you want to deploy the resources defined by this stack."
+
+      availability_domain_name:
+        type: oci:identity:availabilitydomain:name
+        required: true
+        visibile: true
+        title: "Availability Domain to be chosen"
+        description: "Choose Availability Domain where your infrastructure will be deployed."
+        dependsOn:
+          regionName: ${region}
+          compartmentId: ${compartment_ocid}
+          
+      atp_admin_user:
+        type: string
+        required: true
+        visibile: true
+        default: "admin"
+        title: "ATP admin username."
+        description: "ATP admin username."
+
+      atp_admin_password:
+        type: password
+        required: true
+        visibile: true
+        title: "ATP Admin Database password"
+        description: "ATP Database password for ADMIN user"
+        minLength: 12
+        maxLength: 30
+        pattern: ^[A-Za-z][A-Za-z0-9_#\$]+$ 
+
+      atp_user:
+        type: string
+        required: true
+        visibile: true
+        default: "oraapp"
+        title: "ATP application username."
+        description: "ATP application username."
+
+      atp_password:
+        type: password
+        required: true
+        visibile: true
+        title: "ATP App User Database password"
+        description: "ATP Database password for Application user"
+        minLength: 12
+        maxLength: 30
+        pattern: ^[A-Za-z][A-Za-z0-9_#\$]+$ 
+
+      atp_private_endpoint:
+        type: boolean
+        visible: true
+        default: false
+        required: false
+        title: "ATP Database Private Endpoint"
+        description: "Check the box to deploy atp Database with Private Endpoint."
+
+      ocir_repo_name:
+        type: string
+        required: true
+        visibile: true
+        title: "OCIR repository name"
+        description: "Oracle Cloud Infrastructure Registry repository name (for example functions)"
+
+      ocir_user_name:
+        type: string
+        required: true
+        visibile: true
+        title: "OCIR username"
+        description: "Oracle Cloud Infrastructure Registry username (your OCI username)" 
+
+      ocir_user_password:
+        type: password
+        required: true
+        visibile: true
+        title: "OCIR user password"
+        description: "Oracle Cloud Infrastructure Registry user password (your OCI user authtoken)" 
+
+      # Optional Configuration
+      VCN-CIDR:
+        type: string
+        required: false
+        default: "10.0.0.0/16"
+        pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+        description: "VCN CIDR block where you want to create the solution resources."
+
+      atpsubnet-CIDR:
+        type: string
+        required: false
+        default: "10.0.2.0/24"
+        pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+        description: "Private subnet's CIDR block where you want to place your Private Endpoint for ATP."
+
+      websubnet-CIDR:
+        type: string
+        required: false
+        default: "10.0.1.0/24"
+        pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+        description: "Public subnet's CIDR block where you want to place your Flask-based Webserver VM."
+      
+      VCNname:
+        type: string
+        required: false
+        default: "VCN"
+        description: "Name for your VCN where want to create the solution resources."  
+
+      httpx_ports:
+        type: string
+        required: false
+        default: "[80,443]"
+        description: "HTTP and HTTPS ports."
+
+      ssh_public_key:
+        type: oci:core:ssh:publickey
+        title: "Public SSH Key"
+        description: "Choose public SSH Key to be uploaded into compute instances."
+        required: false
+
+      Shape:
+        type: oci:core:instanceshape:name
+        required: false
+        default: "VM.Standard.E3.Flex"
+        description: "Shape of the VM used for Flask-based Webserver VM."
+        dependsOn:
+          compartmentId: ${compartment_ocid}
+
+      Shape_flex_ocpus:
+        type: number
+        required: false
+        minimum: 1
+        maximum: 128
+        multipleOf: 1
+        default: 1
+        title: "Flex Shape OCPUs"
+        description: "Choose number of OCPUs for Flex Shape."
+        visible:
+          and:
+            - or:
+              - eq:
+                - Shape 
+                - "VM.Standard.E3.Flex"
+              - eq:
+                - Shape 
+                - "VM.Standard.E4.Flex"
+
+      Shape_flex_memory:
+        type: number
+        required: false
+        minimum: 1
+        maximum: 128
+        multipleOf: 1
+        default: 10
+        title: "Flex Shape Memory (GB)"
+        description: "Choose number GB for Flex Shape Memory."
+        visible:
+          and:
+            - or:
+              - eq:
+                - Shape 
+                - "VM.Standard.E3.Flex"
+              - eq:
+                - Shape
+                - "VM.Standard.E4.Flex"
+
+      instance_os:
+        type: enum
+        required: false
+        title: "Instance OS"
+        description: "An Operating System that determines the operating system for the instance."
+        default: "Oracle Linux"
+        enum:
+          - "Oracle Linux"
+      
+      linux_os_version:
+        type: enum
+        required: false
+        title: "Instance OS version"
+        description: "An Operating System version that determines the operating system version for the instance."
+        default: "8"
+        enum:
+          - "8"
+          - "7.9"
+
+      atp_database_cpu_core_count:
+        type: number
+        required: false
+        minimum: 1
+        maximum: 128
+        multipleOf: 1
+        default: 1
+        title: "ATP Database CPU Core Count"
+        description: "Choose ATP Database CPU Core Count."
+
+      atp_database_data_storage_size_in_tbs:
+        type: number
+        required: false
+        minimum: 1
+        maximum: 128
+        multipleOf: 1
+        default: 1
+        title: "ATP Database Data Storage Size (TB)"
+        description: "Choose ATP Database Data Storage Size in terabytes."
+
+      atp_database_db_name:
+        type: string
+        required: false
+        default: "iotatp"
+        title: "ATP Database DBNAME"
+        description: "Choose ATP Database DBNAME."
+
+      atp_database_db_version:
+        type: enum
+        required: false
+        default: "19c"
+        title: "ATP Database Version"
+        description: "Choose ATP Database Version."
+        enum:
+          - "19c"
+
+      atp_database_display_name:
+        type: string
+        required: false
+        default: "iotatp"
+        title: "ATP Database Display Name"
+        description: "Choose ATP Database Display Name."
+
+      atp_database_license_model:
+        type: enum
+        required: false
+        default: "LICENSE_INCLUDED"
+        title: "ATP Database License Model"
+        description: "Choose ATP Database License Model."
+        enum:
+          - "LICENSE_INCLUDED"
+          - "BRING_YOUR_OWN_LICENSE"
+
+      atp_tde_wallet_zip_file:
+        type: string
+        required: false
+        visible: false
+        default: "tde_wallet_iotatp.zip"
+        title: "ATP Database TDE Wallet ZIP File"
+        description: "Choose ATP Database TDE Wallet ZIP File."
+      
+      atp_private_endpoint_label:
+        type: string
+        required: false
+        visible: 
+            and:
+              - atp_private_endpoint
+        default: "ATPPrivateEndpoint"
+        title: "ATP Database Private Endpoint Label"
+        description: "Choose ATP Database Private Endpoint Label"
+
+      atp_database_freeform_tags:
+        type: string
+        required: false
+        title: "ATP Database Freeform Tags"
+        description: "Choose ATP Database Freeform Tags"
+
+      atp_database_defined_tags_value:
+        type: string
+        required: false
+        title: "ATP Database Defined Tags"
+        description: "Choose ATP Database Defined Tags"
+
+      release:
+        type: string
+        required: false
+        visible: false
+        title: "Reference Architecture Release (OCI Architecture Center)"
+
+    outputs:
+
+      Flask_Webserver_URL:
+        title: "Flask Webserver URL"
+        displayText: "Flask Webserver URL"
+        type: copyableString
+        visible: true
+
+      Upload2StreamFn_POST_EndPoint_URL:
+        title: "Upload2StreamFn POST endpoint URL"
+        displayText: "Upload2StreamFn POST endpoint URL"
+        type: copyableString
+        visible: true
+
+      generated_ssh_private_key:
+        title: "Generated SSH Private Key"
+        displayText: "Generated SSH Private Key"
+        type: string
+        visible: true
+      
