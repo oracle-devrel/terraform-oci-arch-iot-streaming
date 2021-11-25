@@ -102,7 +102,7 @@ When you no longer need the deployment, you can run this command to destroy the 
     terraform destroy
 
 ## Deploy as a Module
-It's possible to utilize this repository as remote module, providing the necessary inputs:
+It is possible to utilize this repository as remote module, providing the necessary inputs:
 
 ```
 module "oci-arch-iot-streaming" {
@@ -152,7 +152,7 @@ When you no longer need the deployment, you can run this command to destroy it:
 
 ![](./images/oci-arch-iot-streaming.png)
 
-## Reference Archirecture
+## Reference Architecture
 
 This reference architecture deploys OCI Streaming supported by OCI Functions and OCI API Gateway. Messages uploaded to the stream partition will be then consumed by the Functions and uploaded to OCI ATP Instance. Data from the database will be exposed via Flask-based webserver deployed on OCI compute instance.  
 
