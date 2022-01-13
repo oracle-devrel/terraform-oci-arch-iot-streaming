@@ -41,7 +41,7 @@ resource "null_resource" "SetupATPFnPush2OCIR" {
   }
 
   provisioner "local-exec" {
-    command     = "fn build --verbose --build-arg ARG_ADMIN_ATP_PASSWORD=${var.atp_admin_password} --build-arg ARG_ATP_USER=${var.atp_user} --build-arg ARG_ATP_PASSWORD=${var.atp_password} --build-arg ARG_ATP_ALIAS=${var.atp_database_db_name}_medium"
+    command     = "rm -rf /home/orm/.fn ; fn build --verbose --build-arg ARG_ADMIN_ATP_PASSWORD=${var.atp_admin_password} --build-arg ARG_ATP_USER=${var.atp_user} --build-arg ARG_ATP_PASSWORD=${var.atp_password} --build-arg ARG_ATP_ALIAS=${var.atp_database_db_name}_medium"
     working_dir = "${path.module}/functions/SetupATPFn"
   }
 
@@ -88,7 +88,7 @@ resource "null_resource" "Stream2ATPFnPush2OCIR" {
   }
 
   provisioner "local-exec" {
-    command     = "fn build --verbose --build-arg ARG_ATP_USER=${var.atp_user} --build-arg ARG_ATP_PASSWORD=${var.atp_password} --build-arg ARG_ATP_ALIAS=${var.atp_database_db_name}_medium --build-arg ARG_STREAM_OCID=${oci_streaming_stream.stream.id} --build-arg ARG_STREAM_ENDPOINT=${data.oci_streaming_stream_pool.streamPool.endpoint_fqdn}"
+    command     = "rm -rf /home/orm/.fn ; fn build --verbose --build-arg ARG_ATP_USER=${var.atp_user} --build-arg ARG_ATP_PASSWORD=${var.atp_password} --build-arg ARG_ATP_ALIAS=${var.atp_database_db_name}_medium --build-arg ARG_STREAM_OCID=${oci_streaming_stream.stream.id} --build-arg ARG_STREAM_ENDPOINT=${data.oci_streaming_stream_pool.streamPool.endpoint_fqdn}"
     working_dir = "${path.module}/functions/Stream2ATPFn"
   }
 
@@ -130,7 +130,7 @@ resource "null_resource" "Upload2StreamFnPush2OCIR" {
   }
 
   provisioner "local-exec" {
-    command     = "fn build --verbose --build-arg ARG_STREAM_OCID='${oci_streaming_stream.stream.id}' --build-arg ARG_STREAM_ENDPOINT='${data.oci_streaming_stream_pool.streamPool.endpoint_fqdn}'"
+    command     = "rm -rf /home/orm/.fn ; fn build --verbose --build-arg ARG_STREAM_OCID='${oci_streaming_stream.stream.id}' --build-arg ARG_STREAM_ENDPOINT='${data.oci_streaming_stream_pool.streamPool.endpoint_fqdn}'"
     working_dir = "${path.module}/functions/Upload2StreamFn"
   }
 
