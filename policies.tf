@@ -74,7 +74,8 @@ resource "oci_identity_policy" "FunctionsServiceDynamicGroupPolicy" {
   name           = "FunctionsServiceDynamicGroupPolicy"
   description    = "FunctionsServiceDynamicGroupPolicy"
   compartment_id = var.compartment_ocid
-  statements     = ["allow dynamic-group ${oci_identity_dynamic_group.FunctionsServiceDynamicGroup.name} to manage all-resources in compartment id ${var.compartment_ocid}"]
+  statements = ["allow dynamic-group ${oci_identity_dynamic_group.FunctionsServiceDynamicGroup.name} to manage all-resources in compartment id ${var.compartment_ocid}",
+  "allow dynamic-group ${oci_identity_dynamic_group.FunctionsServiceDynamicGroup.name} to use stream-push in compartment id ${var.compartment_ocid}"]
 
   provisioner "local-exec" {
     command = "sleep 5"

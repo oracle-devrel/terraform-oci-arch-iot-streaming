@@ -1,4 +1,4 @@
-FROM fnproject/python:3.6-dev as build-stage
+FROM fnproject/python:3.8.5-dev as build-stage
 
 WORKDIR /function
 
@@ -11,7 +11,7 @@ ADD . /function/
 
 RUN rm -fr /function/.pip_cache
 
-FROM fnproject/python:3.6
+FROM fnproject/python:3.8.5
 
 WORKDIR /function
 
