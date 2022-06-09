@@ -1,5 +1,5 @@
 ## Create IoT Streaming module + network injected into the module
-This is an example of how to use the oci-arch-atp-private module to deploy IoT Streaming module and network cloud infrastrucutre elements injected to the module.
+This is an example of how to use the module to deploy IoT Streaming module and network cloud infrastrucutre elements injected to the module.
   
 ### Using this example
 Update terraform.tfvars with the required information.
