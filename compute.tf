@@ -42,7 +42,7 @@ resource "oci_core_instance" "webserver" {
 
   metadata = {
     ssh_authorized_keys = var.ssh_public_key
-    user_data           = data.cloudinit_config.cloud_init
+    user_data           = data.cloudinit_config.cloud_init.rendered
   }
 
   create_vnic_details {
