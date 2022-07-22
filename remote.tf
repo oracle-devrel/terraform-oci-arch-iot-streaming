@@ -83,7 +83,7 @@ resource "null_resource" "webserver_ConfigMgmt" {
       agent       = false
       timeout     = "10m"
     }
-    content     = local.sqlnet_ora_template.rendered
+    content     = local.sqlnet_ora_template
     destination = "/tmp/sqlnet.ora"
   }
 
@@ -111,7 +111,7 @@ resource "null_resource" "webserver_ConfigMgmt" {
       agent       = false
       timeout     = "10m"
     }
-    content     = local.flask_atp_py_template.rendered
+    content     = local.flask_atp_py_template
     destination = "/tmp/flask_atp.py"
   }
 
@@ -125,7 +125,7 @@ resource "null_resource" "webserver_ConfigMgmt" {
       agent       = false
       timeout     = "10m"
     }
-    content     = local.flask_atp_sh_template.rendered
+    content     = local.flask_atp_sh_template
     destination = "/tmp/flask_atp.sh"
   }
 
@@ -139,7 +139,7 @@ resource "null_resource" "webserver_ConfigMgmt" {
       agent       = false
       timeout     = "10m"
     }
-    content     = local.flask_bootstrap_template.rendered
+    content     = local.flask_bootstrap_template
     destination = "/tmp/flask_bootstrap.sh"
   }
 
