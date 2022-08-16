@@ -1,14 +1,14 @@
 ## Copyright (c) 2021, Oracle and/or its affiliates.
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
-resource "oci_logging_log_group" "log_group" {
+resource "oci_logging_log_group" "iot_streaming_lg" {
   compartment_id = var.compartment_ocid
-  display_name   = "log_group"
+  display_name   = "log_group_for_iot_streaming"
 }
 
 resource "oci_logging_log" "log_on_fn_invoke_Stream2ATPFnApp" {
   display_name = "log_on_fn_invoke_Stream2ATPFnApp"
-  log_group_id = oci_logging_log_group.log_group.id
+  log_group_id = oci_logging_log_group.iot_streaming_lg.id
   log_type     = "SERVICE"
 
   configuration {
@@ -25,7 +25,7 @@ resource "oci_logging_log" "log_on_fn_invoke_Stream2ATPFnApp" {
 
 resource "oci_logging_log" "log_on_fn_invoke_Upload2StreamFnApp" {
   display_name = "log_on_fn_invoke_Upload2StreamFnApp"
-  log_group_id = oci_logging_log_group.log_group.id
+  log_group_id = oci_logging_log_group.iot_streaming_lg.id
   log_type     = "SERVICE"
 
   configuration {

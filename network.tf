@@ -7,7 +7,7 @@ resource "oci_core_virtual_network" "vcn" {
   dns_label      = "vcn"
   compartment_id = var.compartment_ocid
   display_name   = "vcn"
-  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags   = local.defined_tags
 }
 
 resource "oci_core_internet_gateway" "igw" {
@@ -15,7 +15,7 @@ resource "oci_core_internet_gateway" "igw" {
   compartment_id = var.compartment_ocid
   display_name   = "igw"
   vcn_id         = oci_core_virtual_network.vcn[0].id
-  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags   = local.defined_tags
 }
 
 
@@ -24,7 +24,7 @@ resource "oci_core_route_table" "rt_transit_routing_sgw" {
   compartment_id = var.compartment_ocid
   vcn_id         = oci_core_virtual_network.vcn[0].id
   display_name   = "rt_transit_routing_sgw"
-  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags   = local.defined_tags
 }
 
 resource "oci_core_service_gateway" "sgw" {
@@ -41,7 +41,7 @@ resource "oci_core_service_gateway" "sgw" {
   #Optional
   display_name   = "ServiceGateway"
   route_table_id = oci_core_route_table.rt_transit_routing_sgw[0].id
-  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags   = local.defined_tags
 }
 
 
@@ -50,7 +50,7 @@ resource "oci_core_nat_gateway" "natgw" {
   compartment_id = var.compartment_ocid
   display_name   = "nat_gateway"
   vcn_id         = oci_core_virtual_network.vcn[0].id
-  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags   = local.defined_tags
 }
 
 resource "oci_core_route_table" "rt_via_sgw" {
@@ -64,7 +64,7 @@ resource "oci_core_route_table" "rt_via_sgw" {
     destination_type  = "SERVICE_CIDR_BLOCK"
     network_entity_id = oci_core_service_gateway.sgw[0].id
   }
-  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags = local.defined_tags
 }
 
 resource "oci_core_route_table" "rt_via_igw" {
@@ -77,7 +77,7 @@ resource "oci_core_route_table" "rt_via_igw" {
     destination_type  = "CIDR_BLOCK"
     network_entity_id = oci_core_internet_gateway.igw[0].id
   }
-  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags = local.defined_tags
 }
 
 resource "oci_core_route_table" "rt_via_natgw" {
@@ -90,7 +90,7 @@ resource "oci_core_route_table" "rt_via_natgw" {
     destination_type  = "CIDR_BLOCK"
     network_entity_id = oci_core_nat_gateway.natgw[0].id
   }
-  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags = local.defined_tags
 }
 
 resource "oci_core_security_list" "seclist1" {
@@ -120,7 +120,7 @@ resource "oci_core_security_list" "seclist1" {
     protocol = "6"
     source   = var.VCN-CIDR
   }
-  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags = local.defined_tags
 }
 
 resource "oci_core_dhcp_options" "dhcpoptions1" {
@@ -140,7 +140,7 @@ resource "oci_core_dhcp_options" "dhcpoptions1" {
     type                = "SearchDomain"
     search_domain_names = ["example.com"]
   }
-  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags = local.defined_tags
 }
 
 resource "oci_core_subnet" "websubnet" {
@@ -153,7 +153,7 @@ resource "oci_core_subnet" "websubnet" {
   route_table_id    = oci_core_route_table.rt_via_igw[0].id
   dhcp_options_id   = oci_core_dhcp_options.dhcpoptions1[0].id
   security_list_ids = [oci_core_security_list.seclist1[0].id]
-  defined_tags      = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags      = local.defined_tags
 }
 
 resource "oci_core_subnet" "atpsubnet" {
@@ -166,5 +166,5 @@ resource "oci_core_subnet" "atpsubnet" {
   route_table_id             = oci_core_route_table.rt_via_natgw[0].id
   dhcp_options_id            = oci_core_dhcp_options.dhcpoptions1[0].id
   prohibit_public_ip_on_vnic = true
-  defined_tags               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags               = local.defined_tags
 }

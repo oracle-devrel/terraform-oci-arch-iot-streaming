@@ -20,6 +20,6 @@ module "oci-adb" {
   adb_nsg_id                            = var.atp_private_endpoint ? local.atp_nsg_id : null
   adb_private_endpoint_label            = var.atp_private_endpoint ? var.atp_database_atp_private_endpoint_label : null
   adb_subnet_id                         = var.atp_private_endpoint ? local.atp_subnet_id : null
-  defined_tags                          = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags                          = local.defined_tags
 }
 

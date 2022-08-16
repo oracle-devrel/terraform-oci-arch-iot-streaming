@@ -4,13 +4,13 @@
 resource "oci_streaming_stream_pool" "streamPool" {
   compartment_id = var.compartment_ocid
   name           = "IoTStreamPool"
-  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags   = local.defined_tags
 }
 
 resource "oci_streaming_stream" "stream" {
   name           = "IoTStream"
   partitions     = 1
   stream_pool_id = oci_streaming_stream_pool.streamPool.id
-  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags   = local.defined_tags
 }
 

@@ -4,14 +4,7 @@
 resource "null_resource" "Login2OCIR" {
   depends_on = [oci_functions_application.Stream2ATPFnApp,
     module.oci-adb.adb_database,
-    oci_identity_policy.FunctionsServiceReposAccessPolicy,
-    oci_identity_policy.FunctionsServiceNetworkAccessPolicy,
-    oci_identity_dynamic_group.FunctionsServiceDynamicGroup,
-    oci_identity_policy.FunctionsServiceDynamicGroupPolicy,
-    oci_identity_policy.ManageAPIGWFamilyPolicy,
-    oci_identity_policy.ManageVCNFamilyPolicy,
-    oci_identity_policy.UseFnFamilyPolicy,
-  oci_identity_policy.AnyUserUseFnPolicy]
+  module.policies]
 
   provisioner "local-exec" {
     command = "echo '${var.ocir_user_password}' |  docker login ${local.ocir_docker_repository} --username ${local.ocir_namespace}/${var.ocir_user_name} --password-stdin"

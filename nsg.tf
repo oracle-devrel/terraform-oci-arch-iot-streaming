@@ -6,7 +6,7 @@ resource "oci_core_network_security_group" "atp_nsg" {
   compartment_id = var.compartment_ocid
   display_name   = "atp_nsg"
   vcn_id         = oci_core_virtual_network.vcn[0].id
-  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags   = local.defined_tags
 }
 
 resource "oci_core_network_security_group" "web_nsg" {
@@ -14,7 +14,7 @@ resource "oci_core_network_security_group" "web_nsg" {
   compartment_id = var.compartment_ocid
   display_name   = "web_nsg"
   vcn_id         = oci_core_virtual_network.vcn[0].id
-  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags   = local.defined_tags
 }
 
 resource "oci_core_network_security_group" "ssh_nsg" {
@@ -22,7 +22,7 @@ resource "oci_core_network_security_group" "ssh_nsg" {
   compartment_id = var.compartment_ocid
   display_name   = "ssh_nsg"
   vcn_id         = oci_core_virtual_network.vcn[0].id
-  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags   = local.defined_tags
 }
 
 resource "oci_core_network_security_group_security_rule" "atp_nsg_egress_rule1" {

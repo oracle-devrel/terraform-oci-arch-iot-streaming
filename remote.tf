@@ -1,50 +1,43 @@
 ## Copyright (c) 2021, Oracle and/or its affiliates.
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
-data "template_file" "flask_atp_py_template" {
-  template = file("${path.module}/flask/flask_atp.py")
+locals {
+  flask_atp_py_template = templatefile("${path.module}/flask/flask_atp.py",
+    {
+      atp_user                            = var.atp_user
+      atp_password                        = var.atp_password
+      atp_alias                           = join("", [var.atp_database_db_name, "_medium"])
+      oracle_instant_client_version_short = var.oracle_instant_client_version_short
+      apigw_endpoint_URL                  = data.oci_apigateway_deployment.apigateway_deployment.endpoint
+    }
+  )
 
-  vars = {
-    atp_user                            = var.atp_user
-    atp_password                        = var.atp_password
-    atp_alias                           = join("", [var.atp_database_db_name, "_medium"])
-    oracle_instant_client_version_short = var.oracle_instant_client_version_short
-    apigw_endpoint_URL                  = data.oci_apigateway_deployment.apigateway_deployment.endpoint
-  }
-}
+  flask_atp_sh_template = templatefile("${path.module}/flask/flask_atp.sh",
+    {
+      oracle_instant_client_version_short = var.oracle_instant_client_version_short
+    }
+  )
 
-data "template_file" "flask_atp_sh_template" {
-  template = file("${path.module}/flask/flask_atp.sh")
+  flask_bootstrap_template = templatefile("${path.module}/flask/flask_bootstrap.sh",
+    {
+      atp_tde_wallet_zip_file             = var.atp_tde_wallet_zip_file
+      oracle_instant_client_version       = var.oracle_instant_client_version
+      oracle_instant_client_version_short = var.oracle_instant_client_version_short
+    }
+  )
 
-  vars = {
-    oracle_instant_client_version_short = var.oracle_instant_client_version_short
-  }
-}
+  sqlnet_ora_template = templatefile("${path.module}/flask/sqlnet.ora",
+    {
+      oracle_instant_client_version_short = var.oracle_instant_client_version_short
+    }
+  )
 
-data "template_file" "flask_bootstrap_template" {
-  template = file("${path.module}/flask/flask_bootstrap.sh")
+  index_html_template = templatefile("${path.module}/flask/templates/index.html",
+    {
+      apigw_endpoint_URL = data.oci_apigateway_deployment.apigateway_deployment.endpoint
+    }
+  )
 
-  vars = {
-    atp_tde_wallet_zip_file             = var.atp_tde_wallet_zip_file
-    oracle_instant_client_version       = var.oracle_instant_client_version
-    oracle_instant_client_version_short = var.oracle_instant_client_version_short
-  }
-}
-
-data "template_file" "sqlnet_ora_template" {
-  template = file("${path.module}/flask/sqlnet.ora")
-
-  vars = {
-    oracle_instant_client_version_short = var.oracle_instant_client_version_short
-  }
-}
-
-data "template_file" "index_html_template" {
-  template = file("${path.module}/flask/templates/index.html")
-
-  vars = {
-    apigw_endpoint_URL = data.oci_apigateway_deployment.apigateway_deployment.endpoint
-  }
 }
 
 resource "null_resource" "webserver_ConfigMgmt" {
@@ -90,7 +83,7 @@ resource "null_resource" "webserver_ConfigMgmt" {
       agent       = false
       timeout     = "10m"
     }
-    content     = data.template_file.sqlnet_ora_template.rendered
+    content     = local.sqlnet_ora_template
     destination = "/tmp/sqlnet.ora"
   }
 
@@ -104,7 +97,7 @@ resource "null_resource" "webserver_ConfigMgmt" {
       agent       = false
       timeout     = "10m"
     }
-    content     = data.template_file.index_html_template.rendered
+    content     = local.index_html_template
     destination = "/tmp/index.html"
   }
 
@@ -118,7 +111,7 @@ resource "null_resource" "webserver_ConfigMgmt" {
       agent       = false
       timeout     = "10m"
     }
-    content     = data.template_file.flask_atp_py_template.rendered
+    content     = local.flask_atp_py_template
     destination = "/tmp/flask_atp.py"
   }
 
@@ -132,7 +125,7 @@ resource "null_resource" "webserver_ConfigMgmt" {
       agent       = false
       timeout     = "10m"
     }
-    content     = data.template_file.flask_atp_sh_template.rendered
+    content     = local.flask_atp_sh_template
     destination = "/tmp/flask_atp.sh"
   }
 
@@ -146,7 +139,7 @@ resource "null_resource" "webserver_ConfigMgmt" {
       agent       = false
       timeout     = "10m"
     }
-    content     = data.template_file.flask_bootstrap_template.rendered
+    content     = local.flask_bootstrap_template
     destination = "/tmp/flask_bootstrap.sh"
   }
 
